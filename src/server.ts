@@ -6,6 +6,7 @@ import {
   onconnectionrequestMsg,
   onhandshakeMsg,
   onlineUser,
+  chat_message,
 } from "./typescript/main";
 
 dotenv.config();
@@ -32,40 +33,30 @@ io.on("connection", async (socket) => {
       // if (onlineUsers) {
       // checking user already avalabel or not ?
       const isUseralreadyAvalable = onlineUsers?.find(
-        (arrayItem) => (arrayItem._id == msg.user._id && arrayItem.email == msg.user.email)
+        (arrayItem) =>
+          arrayItem._id == msg.user._id && arrayItem.email == msg.user.email
       );
       if (!isUseralreadyAvalable) {
         onlineUsers.push({ ...msg.user, socketId: socket.id });
-            io.emit("allOnlineUsers", onlineUsers);
+        io.emit("allOnlineUsers", onlineUsers);
+        console.log("onHnadshake");
       }
-  
-    }else{
-      console.log('_id not found')
+    } else {
+      console.log("_id not found");
     }
-    console.log("onHnadshake")
   });
 
   socket.on("ConnectionRequest", (msg: onconnectionrequestMsg) => {
-    const { user, me, _key } = msg;
-console.log({_key})
-    // check user is online or not
-    const isUserOnline = onlineUsers.find(
-      (onlineUser) => onlineUser._id == user._id
-    );
+    const { sentBy,sendTo, _key } = msg;
+    console.log({ _key });
 
-    console.log("ConnectionRequest running");
-    // check who is reqesting and he is online or not
-    const requestingUser = onlineUsers.find(
-      (onlineUser) => onlineUser._id == me._id
-    );
+    socket
+      .to(sendTo.socketId)
+      .emit("ConnectionRequestToUser", { user: sentBy, _key });
+  });
 
-    if (isUserOnline && requestingUser) {
-      socket
-        .to(isUserOnline.socketId)
-        .emit("ConnectionRequestToUser", { user: requestingUser, _key });
-    } else {
-      console.log("user not found");
-    }
+  socket.on("chat_message", (msg: chat_message) => {
+    socket.to(msg.receiver_socketId).emit("chat_message",msg)
   });
 
   socket.on("disconnect", () => {
@@ -80,4 +71,3 @@ console.log(onlineUsers);
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
-
