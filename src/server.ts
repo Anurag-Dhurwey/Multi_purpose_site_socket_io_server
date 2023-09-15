@@ -26,11 +26,11 @@ const PORT = process.env.PORT || 5001;
 let onlineUsers: Array<onlineUser> = [];
 
 io.on("connection", async (socket) => {
-  console.log(`A user ${socket.id} is connected`);
+  // console.log(`A user ${socket.id} is connected`);
 
   socket.on("onHnadshake", async (msg: onhandshakeMsg) => {
     if (msg.user?._id) {
-      // if (onlineUsers) {
+
       // checking user already avalabel or not ?
       const isUseralreadyAvalable = onlineUsers?.find(
         (arrayItem) =>
@@ -55,11 +55,11 @@ io.on("connection", async (socket) => {
             io.to(socketId).emit("allOnlineUsers", connectedOnlineUsr);
           }
         });
-        // io.emit("allOnlineUsers", connectedOnlineUsr);
-        console.log("onHnadshake");
+
+        // console.log("onHnadshake");
       }
     } else {
-      console.log("_id not found");
+      // console.log("_id not found");
     }
   });
 
@@ -69,7 +69,7 @@ io.on("connection", async (socket) => {
       return usr.email == sendTo.email;
     });
     if (isOnline) {
-      console.log({ _key });
+      // console.log({ _key });
       socket
         .to(isOnline.socketId)
         .emit("ConnectionRequestToUser", { user: sentBy, _key });
@@ -84,6 +84,8 @@ io.on("connection", async (socket) => {
     const disconnectingUsr = onlineUsers.find(
       (user) => user.socketId == socket.id
     );
+    
+    onlineUsers = onlineUsers?.filter((user) => user.socketId !== socket.id);
 
     onlineUsers?.forEach((usr) => {
       const { connections, socketId } = usr;
@@ -97,12 +99,15 @@ io.on("connection", async (socket) => {
         io.to(socketId).emit("allOnlineUsers", newCopyOfOnlineUsers);
       }
     });
-    onlineUsers = onlineUsers?.filter((user) => user.socketId !== socket.id);
-    console.log(`${socket.id} : disconnected`);
+    // console.log(`${socket.id} : disconnected`);
   });
 });
 
-console.log(onlineUsers);
+// console.log(onlineUsers);
+
+app.get('/',(req,res)=>{
+  res.send({onlineUsers})
+})
 
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

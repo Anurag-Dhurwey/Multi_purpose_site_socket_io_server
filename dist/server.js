@@ -22,7 +22,6 @@ io.on("connection", async (socket) => {
     console.log(`A user ${socket.id} is connected`);
     socket.on("onHnadshake", async (msg) => {
         if (msg.user?._id) {
-            // if (onlineUsers) {
             // checking user already avalabel or not ?
             const isUseralreadyAvalable = onlineUsers?.find((arrayItem) => arrayItem._id == msg.user._id && arrayItem.email == msg.user.email);
             if (!isUseralreadyAvalable) {
@@ -42,7 +41,6 @@ io.on("connection", async (socket) => {
                         io.to(socketId).emit("allOnlineUsers", connectedOnlineUsr);
                     }
                 });
-                // io.emit("allOnlineUsers", connectedOnlineUsr);
                 console.log("onHnadshake");
             }
         }
@@ -67,6 +65,7 @@ io.on("connection", async (socket) => {
     });
     socket.on("disconnect", () => {
         const disconnectingUsr = onlineUsers.find((user) => user.socketId == socket.id);
+        onlineUsers = onlineUsers?.filter((user) => user.socketId !== socket.id);
         onlineUsers?.forEach((usr) => {
             const { connections, socketId } = usr;
             const isExist = connections?.connected.find((conUsr) => {
@@ -77,11 +76,13 @@ io.on("connection", async (socket) => {
                 io.to(socketId).emit("allOnlineUsers", newCopyOfOnlineUsers);
             }
         });
-        onlineUsers = onlineUsers?.filter((user) => user.socketId !== socket.id);
         console.log(`${socket.id} : disconnected`);
     });
 });
 console.log(onlineUsers);
+app.get('/', (req, res) => {
+    res.send({ onlineUsers });
+});
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
