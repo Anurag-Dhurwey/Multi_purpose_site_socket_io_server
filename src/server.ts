@@ -13,11 +13,11 @@ dotenv.config();
 const app = express();
 const server = http.createServer(app);
 
-const origin = process.env.ACCEPTED_CORS_ORIGINS;
+const origin = process.env.ACCEPTED_CORS_ORIGINS?.split(',');
 
 const io = new Server(server, {
   cors: {
-    origin: [origin ? origin : ""],
+    origin: origin,
   },
 });
 

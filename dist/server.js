@@ -19,7 +19,7 @@ const io = new socket_io_1.Server(server, {
 const PORT = process.env.PORT || 5001;
 let onlineUsers = [];
 io.on("connection", async (socket) => {
-    console.log(`A user ${socket.id} is connected`);
+    // console.log(`A user ${socket.id} is connected`);
     socket.on("onHnadshake", async (msg) => {
         if (msg.user?._id) {
             // checking user already avalabel or not ?
@@ -41,11 +41,11 @@ io.on("connection", async (socket) => {
                         io.to(socketId).emit("allOnlineUsers", connectedOnlineUsr);
                     }
                 });
-                console.log("onHnadshake");
+                // console.log("onHnadshake");
             }
         }
         else {
-            console.log("_id not found");
+            // console.log("_id not found");
         }
     });
     socket.on("ConnectionRequest", (msg) => {
@@ -54,7 +54,7 @@ io.on("connection", async (socket) => {
             return usr.email == sendTo.email;
         });
         if (isOnline) {
-            console.log({ _key });
+            // console.log({ _key });
             socket
                 .to(isOnline.socketId)
                 .emit("ConnectionRequestToUser", { user: sentBy, _key });
@@ -76,10 +76,10 @@ io.on("connection", async (socket) => {
                 io.to(socketId).emit("allOnlineUsers", newCopyOfOnlineUsers);
             }
         });
-        console.log(`${socket.id} : disconnected`);
+        // console.log(`${socket.id} : disconnected`);
     });
 });
-console.log(onlineUsers);
+// console.log(onlineUsers);
 app.get('/', (req, res) => {
     res.send({ onlineUsers });
 });
