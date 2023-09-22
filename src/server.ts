@@ -13,11 +13,13 @@ dotenv.config();
 const app = express();
 const server = http.createServer(app);
 
-const origin = process.env.ACCEPTED_CORS_ORIGINS?.split(',');
+const origin = process.env.ACCEPTED_CORS_ORIGINS?.split(",");
 
 const io = new Server(server, {
   cors: {
     origin: origin,
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    credentials: true, // Allow cookies, if your application uses them
   },
 });
 
@@ -30,7 +32,6 @@ io.on("connection", async (socket) => {
 
   socket.on("onHnadshake", async (msg: onhandshakeMsg) => {
     if (msg.user?._id) {
-
       // checking user already avalabel or not ?
       const isUseralreadyAvalable = onlineUsers?.find(
         (arrayItem) =>
@@ -43,14 +44,12 @@ io.on("connection", async (socket) => {
           const isExist = connections?.connected.find((conUsr) => {
             return conUsr.user._id == msg.user._id;
           });
-          if (isExist || usr.email==msg.user.email) {
+          if (isExist || usr.email == msg.user.email) {
             const connectedOnlineUsr = onlineUsers.filter((Onusr) => {
-              const isConnected = connections?.connected?.find(
-                (conUsr) => {
-                  return Onusr._id == conUsr.user._id;
-                }
-              );
-              return isConnected !=undefined;
+              const isConnected = connections?.connected?.find((conUsr) => {
+                return Onusr._id == conUsr.user._id;
+              });
+              return isConnected != undefined;
             });
             io.to(socketId).emit("allOnlineUsers", connectedOnlineUsr);
           }
@@ -84,7 +83,7 @@ io.on("connection", async (socket) => {
     const disconnectingUsr = onlineUsers.find(
       (user) => user.socketId == socket.id
     );
-    
+
     onlineUsers = onlineUsers?.filter((user) => user.socketId !== socket.id);
 
     onlineUsers?.forEach((usr) => {
@@ -105,10 +104,11 @@ io.on("connection", async (socket) => {
 
 // console.log(onlineUsers);
 
-app.get('/',(req,res)=>{
-  res.send({onlineUsers})
-})
+app.get("/", (req, res) => {
+  res.send({ onlineUsers });
+});
 
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+  console.log(origin);
 });

@@ -10,10 +10,12 @@ const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const server = http_1.default.createServer(app);
-const origin = process.env.ACCEPTED_CORS_ORIGINS;
+const origin = process.env.ACCEPTED_CORS_ORIGINS?.split(',');
 const io = new socket_io_1.Server(server, {
     cors: {
-        origin: [origin ? origin : ""],
+        origin: origin,
+        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+        credentials: true, // Allow cookies, if your application uses them
     },
 });
 const PORT = process.env.PORT || 5001;
@@ -85,4 +87,5 @@ app.get('/', (req, res) => {
 });
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
+    console.log(origin);
 });
