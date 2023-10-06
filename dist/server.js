@@ -10,11 +10,11 @@ const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const server = http_1.default.createServer(app);
-const origin = process.env.ACCEPTED_CORS_ORIGINS?.split(',');
+const origin = process.env.ACCEPTED_CORS_ORIGINS?.split(",");
 const io = new socket_io_1.Server(server, {
     cors: {
         origin: origin,
-        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+        methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
         credentials: true, // Allow cookies, if your application uses them
     },
 });
@@ -29,10 +29,12 @@ io.on("connection", async (socket) => {
             if (!isUseralreadyAvalable) {
                 onlineUsers.push({ ...msg.user, socketId: socket.id });
                 onlineUsers?.forEach((usr) => {
+                    console.log(usr.email);
                     const { connections, socketId } = usr;
                     const isExist = connections?.connected.find((conUsr) => {
                         return conUsr.user._id == msg.user._id;
                     });
+                    console.log(usr.email == msg.user.email);
                     if (isExist || usr.email == msg.user.email) {
                         const connectedOnlineUsr = onlineUsers.filter((Onusr) => {
                             const isConnected = connections?.connected?.find((conUsr) => {
@@ -40,10 +42,14 @@ io.on("connection", async (socket) => {
                             });
                             return isConnected != undefined;
                         });
+                        if (usr.email == msg.user.email) {
+                            io.to(socket.id).emit("allOnlineUsers", connectedOnlineUsr);
+                            console.log(socketId, socket.id, socketId == socket.id);
+                        }
                         io.to(socketId).emit("allOnlineUsers", connectedOnlineUsr);
                     }
                 });
-                // console.log("onHnadshake");
+                console.log("onHnadshake");
             }
         }
         else {
@@ -82,7 +88,7 @@ io.on("connection", async (socket) => {
     });
 });
 // console.log(onlineUsers);
-app.get('/', (req, res) => {
+app.get("/", (req, res) => {
     res.send({ onlineUsers });
 });
 server.listen(PORT, () => {

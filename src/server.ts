@@ -39,7 +39,7 @@ io.on("connection", async (socket) => {
       );
       if (!isUseralreadyAvalable) {
         onlineUsers.push({ ...msg.user, socketId: socket.id });
-        onlineUsers?.forEach((usr) => {
+        onlineUsers?.forEach((usr) => {   
           const { connections, socketId } = usr;
           const isExist = connections?.connected.find((conUsr) => {
             return conUsr.user._id == msg.user._id;
