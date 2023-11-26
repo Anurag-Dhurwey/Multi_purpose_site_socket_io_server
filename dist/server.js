@@ -29,12 +29,10 @@ io.on("connection", async (socket) => {
             if (!isUseralreadyAvalable) {
                 onlineUsers.push({ ...msg.user, socketId: socket.id });
                 onlineUsers?.forEach((usr) => {
-                    console.log(usr.email);
                     const { connections, socketId } = usr;
                     const isExist = connections?.connected.find((conUsr) => {
                         return conUsr.user._id == msg.user._id;
                     });
-                    console.log(usr.email == msg.user.email);
                     if (isExist || usr.email == msg.user.email) {
                         const connectedOnlineUsr = onlineUsers.filter((Onusr) => {
                             const isConnected = connections?.connected?.find((conUsr) => {
@@ -42,14 +40,10 @@ io.on("connection", async (socket) => {
                             });
                             return isConnected != undefined;
                         });
-                        if (usr.email == msg.user.email) {
-                            io.to(socket.id).emit("allOnlineUsers", connectedOnlineUsr);
-                            console.log(socketId, socket.id, socketId == socket.id);
-                        }
                         io.to(socketId).emit("allOnlineUsers", connectedOnlineUsr);
                     }
                 });
-                console.log("onHnadshake");
+                // console.log("onHnadshake");
             }
         }
         else {
